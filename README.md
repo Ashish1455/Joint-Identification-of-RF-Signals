@@ -20,10 +20,10 @@
 ![Training Confusion Matrix](Result/Training%20Confusion%20Matrix8680.png)
 
 ### Best Confusion Matrix for various SNRs
-![Confusion Matrix for -5 SNR](Result/Confusion%20matrix%20for%20-5%20SNR.png)
-![Confusion Matrix for 0 SNR](Result/Confusion%20matrix%20for%200%20SNR.png)
-![Confusion Matrix for 5 SNR](Result/Confusion%20matrix%20for%205%20SNR.png)
-![Confusion Matrix for 10 SNR](Result/Confusion%20matrix%20for%2010%20SNR.png)
+![Confusion Matrix for -5 SNR](Result/Confusion%20matrix%20for%20-5%20SNR..png)
+![Confusion Matrix for 0 SNR](Result/Confusion%20matrix%20for%200%20SNR..png)
+![Confusion Matrix for 5 SNR](Result/Confusion%20matrix%20for%205%20SNR..png)
+![Confusion Matrix for 10 SNR](Result/Confusion%20matrix%20for%2010%20SNR..png)
 
 
 

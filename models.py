@@ -3,12 +3,102 @@ from tensorflow.keras.applications import ResNet50
 import tensorflow as tf
 from tensorflow.keras import layers, Model
 
-from tensorflow.keras import layers, Model
+from tensorflow.keras import layers, Model, Sequential
 from tensorflow.keras.layers import (
     Dense, GlobalAveragePooling2D, Dropout, BatchNormalization,
     Input, Conv2D, MaxPooling2D, Activation
 )
 from tensorflow.keras.regularizers import l1_l2
+ #-------------------
+# Efficient Channel Attention (ECA)
+# -------------------
+class ECA1D(layers.Layer):
+    def __init__(self, k_size=5, **kwargs):
+        super().__init__(**kwargs)
+        self.k_size = k_size
+
+    def build(self, input_shape):
+        self.conv = layers.Conv1D(
+            1, kernel_size=self.k_size, padding="same", use_bias=False
+        )
+
+    def call(self, x):
+        y = tf.reduce_mean(x, axis=1, keepdims=True)  # GAP: (B, 1, C)
+        y = tf.transpose(y, [0, 2, 1])  # (B, C, 1)
+        y = self.conv(y)  # local channel conv
+        y = tf.transpose(y, [0, 2, 1])  # (B, 1, C)
+        y = tf.nn.sigmoid(y)
+        return x * y
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            "k_size": self.k_size,
+        })
+        return config
+# -------------------
+# Sequence Attention
+# -------------------
+class SequenceAttention(layers.Layer):
+    def __init__(self):
+        super().__init__()
+    def build(self, input_shape):
+        c = input_shape[-1]
+        self.dense = Sequential([
+            layers.Dense(c // 8, activation="relu"),
+            layers.Dense(c, activation="sigmoid")
+        ])
+    def call(self, x):
+        # temporal weighting
+        w = tf.reduce_mean(x, axis=-1)   # (B, L)
+        w = self.dense(w)                # (B, C)
+        w = tf.expand_dims(w, 1)         # (B, 1, C)
+        return x * w
+# -------------------
+# Cycle Pattern Detector
+# -------------------
+def CyclePatternDetector(channels, kernel_size=7, stride=1):
+    inputs = layers.Input(shape=(None, channels))
+    x = layers.Conv1D(channels, kernel_size, strides=stride, padding="same")(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation("sigmoid")(x)
+    x = layers.Multiply()([inputs, x])  # apply periodic mask
+    return Model(inputs, x, name="CyclePatternDetector")
+# -------------------
+# DResNet-ECA block
+# -------------------
+def DResNetECA(channels, dilation=4):
+    inputs = layers.Input(shape=(None, channels))
+    x = layers.Conv1D(channels, 3, dilation_rate=dilation, padding="same")(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.Conv1D(channels, 3, padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = ECA1D()(x)
+    out = layers.Add()([inputs, x])
+    out = layers.ReLU()(out)
+    return Model(inputs, out)
+# -------------------
+# Full LACNet
+# -------------------
+def LACNet(seq_len=1024, in_channels=2, base_channels=64, num_classes=12):
+    inputs = layers.Input(shape=(seq_len, in_channels))
+    # Sequence Attention + Conv stack
+    x = SequenceAttention()(inputs)
+    x = layers.Conv1D(base_channels, 3, padding="same")(x)
+    x = layers.ReLU()(x)
+    x = layers.Conv1D(base_channels, 3, padding="same")(x)
+    x = layers.ReLU()(x)
+    # Cycle Pattern Detector
+    x = CyclePatternDetector(base_channels)(x)
+    # Two DResNet-ECA blocks
+    x = DResNetECA(base_channels, dilation=2)(x)
+    x = DResNetECA(base_channels, dilation=4)(x)
+    # Global pooling + classifier
+    x = layers.GlobalAveragePooling1D()(x)
+    x = layers.Dense(128, activation="relu")(x)
+    outputs = layers.Dense(num_classes, activation="softmax")(x)
+    return Model(inputs, outputs, name="LACNet")
 
 def model_2():
     # Input layer
@@ -41,11 +131,8 @@ def model_2():
     x = layers.LeakyReLU(alpha=0.3)(x)
     x = layers.Dropout(0.3)(x)
 
-    # Max pooling
-    x = layers.AveragePooling2D(pool_size=(4, 2), padding='same')(x)
-
     # Flatten and Dense layers
-    x = layers.Flatten()(x)
+    x = layers.GlobalAveragePooling2D()(x)
 
     x = layers.Dense(100, activation='relu')(x)
     x = layers.BatchNormalization()(x)

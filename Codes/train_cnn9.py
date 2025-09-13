@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 
 from cnn9_model import build_cnn9
-from data_prep_cnn9 import load_dataset, make_datasets
+from Codes.data_prep_cnn9 import load_dataset, make_datasets
 
 
 def setup_tf(cpu_only: bool = False, allow_growth: bool = True):

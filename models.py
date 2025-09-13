@@ -57,7 +57,7 @@ class SequenceAttention(layers.Layer):
 # -------------------
 # Cycle Pattern Detector
 # -------------------
-def CyclePatternDetector(channels, kernel_size=7, stride=1):
+def CyclePatternDetector(channels, kernel_size=17, stride=1):
     inputs = layers.Input(shape=(None, channels))
     x = layers.Conv1D(channels, kernel_size, strides=stride, padding="same")(inputs)
     x = layers.BatchNormalization()(x)
@@ -100,33 +100,80 @@ def LACNet(seq_len=1024, in_channels=2, base_channels=64, num_classes=12):
     outputs = layers.Dense(num_classes, activation="softmax")(x)
     return Model(inputs, outputs, name="LACNet")
 
+def model_2_1D():
+    # Input layer
+    input_layer = layers.Input(shape=(1024, 2), name='signal_input')
+
+    # First convolutional block
+    x = layers.Conv1D(64, 7, padding='same')(input_layer)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
+    x = layers.Conv1D(64, 7, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
+    x = layers.Conv1D(64, 7, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
+    x = layers.Dropout(0.3)(x)
+
+    # Additional Conv + BatchNorm + Activation + Dropout blocks
+    x = layers.Conv1D(64, 3, padding='same' )(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
+    x = layers.Dropout(0.3)(x)
+
+    x = layers.Conv1D(48, 7, padding='same' )(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
+    x = layers.Dropout(0.3)(x)
+
+    x = layers.Conv1D(32, 12, padding='same' )(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
+    x = layers.Dropout(0.3)(x)
+
+    # Flatten and Dense layers
+    x = layers.GlobalAveragePooling1D()(x)
+
+    x = layers.Dense(100, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dropout(0.5)(x)
+
+    # Output layer with 12 classes (Softmax)
+    output_layer = layers.Dense(12, activation='softmax')(x)
+
+    # Create the model
+    model = Model(inputs=input_layer, outputs=output_layer)
+    return model
+
 def model_2():
     # Input layer
-    input_layer = layers.Input(shape=(4080, 2, 1), name='signal_input')
+    input_layer = layers.Input(shape=(1024, 2, 1), name='signal_input')
 
     # First convolutional block
     x = layers.Conv2D(64, (7, 7), strides=(1, 1), padding='same')(input_layer)
     x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
     x = layers.Conv2D(64, (7, 7), strides=(1, 1), padding='same')(x)
     x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
     x = layers.Conv2D(64, (7, 7), strides=(1, 1), padding='same')(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Conv2D(64, (7, 7), strides=(1, 1), padding='same')(x)
-    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU(alpha=0.3)(x)
     x = layers.Dropout(0.3)(x)
 
     # Additional Conv + BatchNorm + Activation + Dropout blocks
-    x = layers.Conv2D(96, (3, 4), strides=(1, 1), padding='same' )(x)
+    x = layers.Conv2D(64, (3, 4), strides=(1, 1), padding='same' )(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU(alpha=0.3)(x)
     x = layers.Dropout(0.3)(x)
 
-    x = layers.Conv2D(64, (7, 3), strides=(1, 1), padding='same' )(x)
+    x = layers.Conv2D(48, (7, 3), strides=(1, 1), padding='same' )(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU(alpha=0.3)(x)
     x = layers.Dropout(0.3)(x)
 
-    x = layers.Conv2D(48, (12, 1), strides=(1, 1), padding='same' )(x)
+    x = layers.Conv2D(32, (12, 1), strides=(1, 1), padding='same' )(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU(alpha=0.3)(x)
     x = layers.Dropout(0.3)(x)
@@ -138,8 +185,8 @@ def model_2():
     x = layers.BatchNormalization()(x)
     x = layers.Dropout(0.5)(x)
 
-    # Output layer with 4 classes (Softmax)
-    output_layer = layers.Dense(9, activation='softmax')(x)
+    # Output layer with 12 classes (Softmax)
+    output_layer = layers.Dense(12, activation='softmax')(x)
 
     # Create the model
     model = Model(inputs=input_layer, outputs=output_layer)

@@ -23,8 +23,8 @@ else:
     print("No GPUs found!")
 
 #model, base_model = create_resnet50_model(input_shape=(4080, 2), num_classes=9)
-model = LACNet(seq_len=1024, in_channels=2, base_channels=64, num_classes=12)
-# model = model_2()
+# model = LACNet(seq_len=1024, in_channels=2, base_channels=64, num_classes=12)
+model = model_2_1D()
 print(model.summary())
 x_train_final, y_train_final, x_val, y_val = data_loader('Data/paper_dataset_SNR_',)
 # data = np.load('./Matlab/features_spectrogram_scd_from_5_SNR.npz')
@@ -73,7 +73,7 @@ while True:
             verbose=1
         )
 
-        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=5e-5),
                       loss=tf.keras.losses.SparseCategoricalCrossentropy(),
                       metrics=['accuracy'])
 
@@ -86,7 +86,7 @@ while True:
             validation_data=(x_val, y_val),
             # {'encoder_network' :y_val[0],
             #  'modulation_network' :y_val[1]}),
-            batch_size=32,
+            batch_size=64,
             callbacks=[early_stop, checkpoint, checkpoint2],
             verbose=1
         )

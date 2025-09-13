@@ -25,7 +25,7 @@ def data_preprocessing(path):
     return inputs, label
 
 
-def data_loader(base_path, num_files=10):
+def data_loader(base_path, num_files=11):
     """Load multiple .mat files and combine them into one dataset."""
     all_inputs, all_labels = [], []
 

@@ -11,16 +11,16 @@
   - Fine-tuned ResNet-50 and custom CNNs Model (feature_net (106k parameter)) for joint encoder-and-modulation classification (12 classes).
   - Added multi-head architectures with separate loss functions for multi-task learning.
 - **Training & Evaluation**
-  - Trained on 180 k samples (500 -samples per class per SNR, 1024 IQ messages) over a range of 0dB to 10dB SNRs.
+  - Trained on 66 k samples (500 -samples per class per SNR, 1024 IQ messages) over a range of 0dB to 10dB SNRs.
   - Integrated learning-rate scheduling, dropout, and PCA/t-SNE visualization for feature analysis.
 
 ## 📊 Results
 
 ### Training Confusion Matrix
-![Training Confusion Matrix](Result/ConfusionMatrixforTraining.png)
+![Training Confusion Matrix](Result/Confusion%20Matrix%20for%20Training.png)
 
 ### Confusion Matrix for various SNRs
-![Confusion Matrix for -5 SNR](Result/ConfusionMatrixforTesting.png)
+![Confusion Matrix for -5 SNR](Result/Confusion%20Matrix%20for%20Testing.png)
 
 
 

@@ -5,29 +5,26 @@
 - **Signal Processing Pipeline**
   - Automated MATLAB scripts to generate synthetic datasets across multiple SNR levels.
 - **Channel-Coding & Modulation Coverage**
-  - Implemented DVB-S2 LDPC, convolutional, and turbo encoders.
-  - Generated and labelled signals for 8-PSK, 32-QAM, and 64-QAM schemes.
+  - Implemented Turbo, Convolutional, and Polar encoders.
+  - Generated and labelled signals for 8-FSK, 8-PSK, 32-QAM, and 64-QAM schemes.
 - **Deep-Learning Models**
-  - Fine-tuned ResNet-50 and custom CNNs for joint encoder-and-modulation classification (9 classes).
+  - Fine-tuned ResNet-50 and custom CNNs Model (feature_net (106k parameter)) for joint encoder-and-modulation classification (12 classes).
   - Added multi-head architectures with separate loss functions for multi-task learning.
 - **Training & Evaluation**
-  - Trained on 180 k samples (5 000-sample batches, 4096-bit messages) over a range of SNRs.
+  - Trained on 180 k samples (500 -samples per class per SNR, 1024 IQ messages) over a range of 0dB to 10dB SNRs.
   - Integrated learning-rate scheduling, dropout, and PCA/t-SNE visualization for feature analysis.
 
 ## 📊 Results
 
-### Best Training Confusion Matrix
-![Training Confusion Matrix](Result/Training%20Confusion%20Matrix8680.png)
+### Training Confusion Matrix
+![Training Confusion Matrix](Result/ConfusionMatrixforTraining.png)
 
-### Best Confusion Matrix for various SNRs
-![Confusion Matrix for -5 SNR](Result/Confusion%20matrix%20for%20-5%20SNR..png)
-![Confusion Matrix for 0 SNR](Result/Confusion%20matrix%20for%200%20SNR..png)
-![Confusion Matrix for 5 SNR](Result/Confusion%20matrix%20for%205%20SNR..png)
-![Confusion Matrix for 10 SNR](Result/Confusion%20matrix%20for%2010%20SNR..png)
+### Confusion Matrix for various SNRs
+![Confusion Matrix for -5 SNR](Result/ConfusionMatrixforTesting.png)
 
 
 
-*Models maintained stable performance across −5 dB → 14 dB SNR range with minimal degradation.*
+*Models maintained stable performance across 0 dB → 10 dB SNR range with minimal degradation.*
 
 ## 🚀 Future Expectations
 1. **Interleaver Identification**  

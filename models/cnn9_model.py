@@ -1,41 +1,62 @@
 import tensorflow as tf
 from tensorflow.keras import layers, Model
 
-# CNN-9 per diagram, with I/Q fusion in the first conv layer.
-def build_cnn9(input_shape=(2, 1024, 1), num_classes=20):
+def cnn9(input_shape=(1024, 2, 1), num_classes=12):
+    inputs = layers.Input(shape=input_shape, name='signal_input')
 
-    inp = layers.Input(shape=input_shape, name="iq_input")
+    x = layers.Conv2D(16, (1, 128), padding='same', use_bias=False, name='conv1')(inputs)
+    x = layers.BatchNormalization(name='bn1')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu1')(x)
+    x = layers.MaxPooling2D((1, 2), padding='same', name='pool1')(x)
 
-    def block(x, filters, idx):
-        if idx == 1:
-            x = layers.Conv2D(
-                filters,
-                (2, 128),
-                padding="valid",
-                use_bias=False,
-                name=f"conv{idx}",
-            )(x)
-        else:
-            x = layers.Conv2D(
-                filters,
-                (1, 128),
-                padding="same",
-                use_bias=False,
-                name=f"conv{idx}",
-            )(x)
-        x = layers.BatchNormalization(name=f"bn{idx}")(x)
-        x = layers.LeakyReLU(alpha=0.1, name=f"lrelu{idx}")(x)
-        x = layers.MaxPooling2D(pool_size=(1, 2), padding="same", name=f"pool{idx}")(x)
-        return x
+    x = layers.Conv2D(16, (1, 128), padding='same', use_bias=False, name='conv2')(x)
+    x = layers.BatchNormalization(name='bn2')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu2')(x)
+    x = layers.MaxPooling2D((2, 1), padding='same', name='pool2')(x)
 
-    filters_list = [16, 16, 24, 24, 32, 32, 48, 48, 64]
-    x = inp
-    for i, f in enumerate(filters_list, start=1):
-        x = block(x, f, i)
+    x = layers.Conv2D(24, (1, 128), padding='same', use_bias=False, name='conv3')(x)
+    x = layers.BatchNormalization(name='bn3')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu3')(x)
+    x = layers.MaxPooling2D((2, 1), padding='same', name='pool3')(x)
 
-    x = layers.Flatten(name="flatten")(x)
-    x = layers.Dense(128, activation="relu", name="fc1")(x)
-    out = layers.Dense(num_classes, activation="softmax", name="fc2")(x)
+    x = layers.Conv2D(24, (1, 128), padding='same', use_bias=False, name='conv4')(x)
+    x = layers.BatchNormalization(name='bn4')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu4')(x)
+    x = layers.MaxPooling2D((2, 1), padding='same', name='pool4')(x)
 
-    return Model(inp, out, name="cnn9_exact")
+    x = layers.Conv2D(32, (1, 128), padding='same', use_bias=False, name='conv5')(x)
+    x = layers.BatchNormalization(name='bn5')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu5')(x)
+    x = layers.MaxPooling2D((2, 1), padding='same', name='pool5')(x)
 
+    x = layers.Conv2D(32, (1, 128), padding='same', use_bias=False, name='conv6')(x)
+    x = layers.BatchNormalization(name='bn6')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu6')(x)
+    x = layers.MaxPooling2D((2, 1), padding='same', name='pool6')(x)
+
+    x = layers.Conv2D(48, (1, 128), padding='same', use_bias=False, name='conv7')(x)
+    x = layers.BatchNormalization(name='bn7')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu7')(x)
+    x = layers.MaxPooling2D((2, 1), padding='same', name='pool7')(x)
+
+    x = layers.Conv2D(48, (1, 128), padding='same', use_bias=False, name='conv8')(x)
+    x = layers.BatchNormalization(name='bn8')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu8')(x)
+    x = layers.MaxPooling2D((2, 1), padding='same', name='pool8')(x)
+
+    x = layers.Conv2D(64, (1, 128), padding='same', use_bias=False, name='conv9')(x)
+    x = layers.BatchNormalization(name='bn9')(x)
+    x = layers.LeakyReLU(alpha=0.01, name='lrelu9')(x)
+    x = layers.MaxPooling2D((2, 1), padding='same', name='pool9')(x)
+
+    x = layers.Flatten(name='flatten')(x)
+    x = layers.Dense(128, activation='relu', name='fc1')(x)
+    x = layers.LeakyReLU(alpha=0.01)(x)
+    x = layers.BatchNormalization()(x)
+
+    x = layers.Dense(40)(x)
+    x = layers.LeakyReLU(alpha=0.01)(x)
+    x = layers.BatchNormalization()(x)
+    out = layers.Dense(num_classes, activation='softmax', name='fc2')(x)
+
+    return Model(inputs=inputs, outputs=out, name='cnn9_new_paper_dataset')

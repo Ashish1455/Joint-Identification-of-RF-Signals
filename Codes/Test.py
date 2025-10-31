@@ -1,32 +1,51 @@
-from confusin_matrix import *
+from confusion_matrix import *
 from data_preprocessing import *
-from tensorflow.keras.models import load_model
+from models.feature_net_model import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras import layers, Model
+import matplotlib.pyplot as plt
+import time
 
-#x_train, y_train, x_test, y_test, x_val, y_val = data_loader('./Data/turbo_dataset_simplified_realimag2.npz')
-model = load_model("last_model.h5")
-# snr = 5
-# x, y = data_preprocessing(f'Matlab/signal_dataset_SNR_5_db.npz')
-# plot_confusion_matrix_only(model, x, y, f'{snr}SNR')
-x_train, y_train, x_val, y_val = data_loader(f'./Matlab/signal_dataset_SNR_5_db.npz')
+# Load model
+model = feature_net_9()
+model.load_weights("drive/MyDrive/dataset/best_model.h5")
 
-# predictions = model.predict(x_test, batch_size=128, verbose=1)
-# predictions = np.argmax(predictions, axis=1)
-# train_matrix(model, x_train, y_train)
-while True:
-    k = input("'T' -> train, 'V' -> validaton, 'S' -> test or '' -> quit: ")
-    if k == 'T':
-        plot_confusion_matrix_only(model, x_train, y_train, 'Training')
-    elif k == 'V':
-        plot_confusion_matrix_only(model, x_val, y_val, 'Validation')
-    elif k == 'S':
-        snr = -5
-        for i in range(4):
-            x, y = data_preprocessing(f'./Matlab/signal_dataset_SNR_{snr}_db.npz')
-            plot_confusion_matrix_only(model, x, y, f'{snr}SNR')
-            snr += 5
-    else:
-        break
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+              loss='SparseCategoricalCrossentropy',
+              metrics=['accuracy'])
+snr_values = range(-20, 30, 5)
+accuracies = []
 
-print("\n✅ Done running!\n")
+for snr in snr_values:
+    # Load data
+    x, y = mat_file_preprocessing(f'drive/MyDrive/dataset/testing/input_1024/dataset_Rayleigh_SNR_{snr}_dB.mat')
+
+    # Evaluate
+    loss, acc = model.evaluate(x, y, verbose=1)
+    accuracies.append(acc)
+    _ = model.predict(x[:10], verbose=0)
+    start_time = time.time()
+    _ = model.predict(x, verbose=0)
+    end_time = time.time()
+
+    total_time = end_time - start_time
+    time_per_sample = (total_time / len(x)) * 1000
+
+    # Plot confusion matrix
+    plot_confusion_matrix_only(model, x, y, f'{snr}SNR')
+    print(time_per_sample)
+    print(f"SNR {snr} dB → Accuracy: {acc:.4f}")
+
+# Plot accuracy vs SNR
+plt.figure(figsize=(8, 5))
+plt.plot(snr_values, accuracies, marker='o', linestyle='-', linewidth=2, markersize=6)
+plt.title("Classification Accuracy vs SNR", fontsize=14)
+plt.xlabel("SNR (dB)", fontsize=12)
+plt.ylabel("Accuracy", fontsize=12)
+plt.grid(True, linestyle="--", alpha=0.6)
+plt.xticks(snr_values)
+plt.ylim([0.4, 1.05])
+plt.savefig("Accuracy_vs_SNR.png", dpi=300)
+plt.show()
+
+print("\nDone Testing!\n")

@@ -33,10 +33,10 @@ Blind, joint classification of **channel-coding scheme** and **modulation format
 ## 📊 Results
 
 ### Training Confusion Matrix
-![Training Confusion Matrix](Result/Confusion%20Matrix%20for%20Training.png)
+![Training Confusion Matrix](Result/Confusion_Matrix_FeatureNet_Hardware.jpg)
 
 ### Confusion Matrix for Various SNRs
-![Confusion Matrix for Testing](Result/Confusion%20Matrix%20for%20Testing.png)
+![Confusion Matrix for Testing](Result/Confusion_Matrix_ResNet_Hardware.jpg)
 
 *Models maintained stable performance across the 0 dB → 10 dB SNR range with minimal degradation.*
 *See the `Result/` folder for additional figures.*

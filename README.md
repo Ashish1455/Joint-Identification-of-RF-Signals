@@ -1,6 +1,6 @@
 # Joint Identification of RF Signals
 
-Blind, joint classification of **channel-coding scheme** and **modulation format** for RF signals, using deep learning on synthetic IQ datasets. Part of an ongoing Bachelor's Thesis on blind RF-signal identification.
+Blind, joint classification of **channel-coding scheme** and **modulation format** for RF signals, using deep learning on synthetic IQ datasets. Part of a Bachelor's Thesis on blind RF-signal identification.
 
 ## 📁 Repository Structure
 
@@ -25,7 +25,7 @@ Blind, joint classification of **channel-coding scheme** and **modulation format
   - Fine-tuned ResNet-50 and a custom CNN (`feature_net`, ~106k parameters) for joint encoder-and-modulation classification (12 classes).
   - Added multi-head architectures with separate loss functions for multi-task learning.
 - **Training & Evaluation**
-  - Trained on 66k samples (500 samples per class per SNR, 1024 IQ symbols per message) over a 0 dB to 10 dB SNR range.
+  - Trained on 66k samples (500 samples per class per SNR, 1024 IQ symbols per message) over a -20 dB to 25 dB SNR range.
   - Integrated learning-rate scheduling, dropout, and PCA/t-SNE visualization for feature analysis.
 - **Real-World Groundwork**
   - Added initial GNU Radio flowgraphs/scripts for interfacing trained models with SDR hardware, the first step toward the live over-the-air validation goal below.
@@ -52,16 +52,6 @@ pip install -r requirements.txt
 - Use the scripts in `Matlab Codes/` to (re)generate the synthetic dataset.
 - Use the scripts in `Codes/` to train new models, or load a checkpoint from `Saved Models/` to run evaluation directly.
 - Use `GNU Radio Code/` to try inference on live/SDR-captured signals.
-
-## 🚀 Future Expectations
-
-1. **Interleaver Identification**
-   - Integrate interleaver patterns into the dataset.
-   - Extend the network for *triple* classification: encoder, interleaver, modulation.
-2. **Channel Models**
-   - Retrain and benchmark over AWGN and Rayleigh-fading channels.
-3. **Real-World Validation**
-   - Build on the initial GNU Radio integration to complete full over-the-air testing with SDR hardware.
 
 ## Contributors
 
